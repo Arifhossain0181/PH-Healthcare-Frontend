@@ -1,3 +1,4 @@
+import { APiresponse } from "@/tyPes/aPi.tyPes"
 import axios from "axios"
 
 
@@ -22,9 +23,10 @@ export interface APiRequestOPtions{
     headers?: Record<string, string>
 
 }
-const httPget =async (endPoint : string, options?: APiRequestOPtions)=>{
+const httPget =async <TData > (endPoint : string, options?: APiRequestOPtions) :Promise<APiresponse<TData>>=>{
     try{
-        const response = await axiosInstance().get(endPoint, {
+        const instance=  axiosInstance()
+        const response = await instance.get<APiresponse<TData>>(endPoint, {
             params: options?.params,
             headers: options?.headers,
         })
@@ -34,9 +36,9 @@ const httPget =async (endPoint : string, options?: APiRequestOPtions)=>{
         throw error
     }
 }
-const httPpost =async (endPoint : string, data: unknown, options?: APiRequestOPtions)=>{
+const httPpost =async <TData > (endPoint : string, data: unknown, options?: APiRequestOPtions) :Promise<APiresponse<TData>>=>{
     try{
-        const response = await axiosInstance().post(endPoint, data, {   
+        const response = await axiosInstance().post<APiresponse<TData>>(endPoint, data, {   
             params: options?.params,
             headers: options?.headers,
         })
@@ -46,9 +48,9 @@ const httPpost =async (endPoint : string, data: unknown, options?: APiRequestOPt
         throw error
     }
 }
-const httPput =async (endPoint : string, data: unknown, options?: APiRequestOPtions)=>{
+const httPput =async <TData > (endPoint : string, data: unknown, options?: APiRequestOPtions) :Promise<APiresponse<TData>>=>{
     try{
-        const response = await axiosInstance().put(endPoint, data, {
+        const response = await axiosInstance().put<APiresponse<TData>>(endPoint, data, {
             params: options?.params,
             headers: options?.headers,
         })
@@ -59,10 +61,10 @@ const httPput =async (endPoint : string, data: unknown, options?: APiRequestOPti
         throw error
     }
 }
-const httPdelete =async (endPoint : string, options?: APiRequestOPtions)=>{
+const httPdelete =async <TData > (endPoint : string, options?: APiRequestOPtions) :Promise<APiresponse<TData>>=>{
     try{    
 
-        const response = await axiosInstance().delete(endPoint, {
+        const response = await axiosInstance().delete<APiresponse<TData>>(endPoint, {
             params: options?.params,
             headers: options?.headers,
         })
@@ -73,9 +75,9 @@ const httPdelete =async (endPoint : string, options?: APiRequestOPtions)=>{
         throw error
     }
 }
-const httPpatch =async (endPoint : string, data: unknown, options?: APiRequestOPtions)=>{
+const httPpatch =async <TData > (endPoint : string, data: unknown, options?: APiRequestOPtions) :Promise<APiresponse<TData>>=>{
     try{
-        const response = await axiosInstance().patch(endPoint, data, {
+        const response = await axiosInstance().patch<APiresponse<TData>>(endPoint, data, {
             params: options?.params,
             headers: options?.headers,
         })

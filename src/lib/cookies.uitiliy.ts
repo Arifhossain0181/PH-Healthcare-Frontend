@@ -1,5 +1,5 @@
 "use server"
-import { cookies } from "next/dist/server/request/cookies"
+import { cookies } from "next/headers"
 
 
 export const setCookie = async (
@@ -8,11 +8,12 @@ export const setCookie = async (
     maxAgeInSecounds: number,
 
 )=>{
+    const isProduction = process.env.NODE_ENV === "production"
     const cookiesStore = await cookies()
     cookiesStore.set(name, value, {
         maxAge: maxAgeInSecounds,
         httpOnly: true,
-        secure:true,
+        secure:isProduction,
         sameSite: "strict",
         path: "/",  
     })

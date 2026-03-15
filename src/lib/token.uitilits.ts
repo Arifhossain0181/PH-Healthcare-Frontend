@@ -1,13 +1,15 @@
 import jwt from 'jsonwebtoken'
 import { setCookie } from './cookies.uitiliy'
-const JWT_ACCESS_SECRET =process.env.NEXT_PUBLIC_JWT_ACCESS_TOKEN 
 const getTokenSecoundRemanin = (token: string): number => {
     if(!token){
         return 0
     } 
       try{
-                const tokenPayload =JWT_ACCESS_SECRET ?jwt.verify(token, JWT_ACCESS_SECRET as string) as { exp: number } : jwt.decode(token) as { exp: number }
+                const tokenPayload = jwt.decode(token) as { exp?: number } | null
                 if(tokenPayload && !tokenPayload.exp){
+                    return 0
+                }
+                if (!tokenPayload?.exp) {
                     return 0
                 }
                 const remainigSecounds = tokenPayload.exp - Math.floor(Date.now() / 1000)
@@ -21,8 +23,8 @@ const getTokenSecoundRemanin = (token: string): number => {
 
 }
 export  const setTokencookie = async (
-    token: string,
-    name: string
+    name: string,
+    token: string
 
 )=>{
     const maxAge = getTokenSecoundRemanin(token)

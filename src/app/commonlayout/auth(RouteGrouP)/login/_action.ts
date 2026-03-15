@@ -1,4 +1,4 @@
-"use client"
+"use server"
 
 import { httpClient } from "@/lib/axios/httPclientt";
 import { setTokencookie } from "@/lib/token.uitilits";
@@ -22,16 +22,26 @@ export const loginaction = async(payload: LoginSchemaPayload) :Promise<LoginResp
     }
     try{
         const response =await httpClient.post<LoginResponse>('/auth/login', ParsedPayload.data)
-        const {accessToken, refreshToken, user ,token} = response.data
-        await setTokencookie(accessToken, "accessToken")
-        await setTokencookie(refreshToken, "refreshToken")
-        await setTokencookie(token, "better-auth-session_token")
-        redirect("/dashboard")
+        if (!response.success || !response.data) {
+            return {
+                success: false,
+                message: response.message || "Login failed. Please check your credentials and try again.",
+                data: null,
+            }
+        }
+
+        const {accessToken, refreshToken, token} = response.data
+        await setTokencookie("accessToken" ,accessToken)
+        await setTokencookie("refreshToken", refreshToken)
+        await setTokencookie("better-auth.session_token", token)
+        redirect("/dashboardlayout/commonProtectedLayout")
 
        
     }
     catch (error ) {
-        console.log(error)
+        if(error && typeof error ==="object" && "digest" in error && typeof error.digest === "string" && error.digest.startsWith("NEXT_REDIRECT")){
+            throw error; // Re-throw the redirect error to be handled by Next.js
+        }
        return {
             success: false,
             message: "Login failed. Please check your credentials and try again.",

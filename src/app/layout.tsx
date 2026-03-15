@@ -1,3 +1,4 @@
+import './globals.css';
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import QueryProviders from "../Providers/queriesProviders";
@@ -29,7 +30,7 @@ export default function RootLayout({
         suppressHydrationWarning
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        root <br />
+        
         <QueryProviders> {children}</QueryProviders>
        
       </body>

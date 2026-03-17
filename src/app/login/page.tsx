@@ -1,10 +1,15 @@
-import LoginForm from "@/app/components/modules/auth/loginForm";
+import LoginForm from "../components/modules/auth/loginForm";
 import React from "react";
-
-const LoginPage = () => {
+interface LoginPageProps {
+    searchParams?: {
+        redirect?: string;
+    }
+}
+const LoginPage = ({ searchParams }: LoginPageProps) => {
+    const redirectPath = searchParams?.redirect 
     return (
         <div>
-            <LoginForm />
+            <LoginForm redirectPath={redirectPath} />
         </div>
     );
 };

@@ -24,9 +24,25 @@ const getTokenSecoundRemanin = (token: string): number => {
 }
 export  const setTokencookie = async (
     name: string,
-    token: string
+    token: string ,
+    fallbackMaxAge: number = 3600
 
 )=>{
-    const maxAge = getTokenSecoundRemanin(token)
-    await setCookie(name, token, maxAge)
+    let maxAge 
+    if(name !== "better-auth.session_token"){
+        maxAge = getTokenSecoundRemanin(token) }
+    
+    await setCookie(name, token,maxAge 
+    || fallbackMaxAge
+    )
+}
+
+export async function isTokenExpired(token: string ,thresholdSeconds: number = 300): Promise<boolean> {
+    const secondsRemaining = getTokenSecoundRemanin(token)
+    return secondsRemaining <= thresholdSeconds
+}
+
+export async function isTokenexpired(token: string ): Promise<boolean>  {
+    const secondsRemaining = getTokenSecoundRemanin(token)
+    return secondsRemaining  ===0 
 }

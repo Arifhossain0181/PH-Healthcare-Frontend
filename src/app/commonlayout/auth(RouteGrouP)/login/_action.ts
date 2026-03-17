@@ -1,5 +1,6 @@
 "use server"
 
+import { getdefaultDashboardRoute, isvalidRedirectForROle, UserRole } from "@/lib/auth.utilis";
 import { httpClient } from "@/lib/axios/httPclientt";
 import { setTokencookie } from "@/lib/token.uitilits";
 import { APiresponse } from "@/tyPes/aPi.tyPes";
@@ -9,7 +10,7 @@ import { LoginSchemaPayload, loginSchemaZod } from "@/zod/auth.validation";
 import { redirect} from "next/navigation";
 
 
-export const loginaction = async(payload: LoginSchemaPayload) :Promise<LoginResponse | APiresponse> => {
+export const loginaction = async(payload: LoginSchemaPayload ,redirectPath ?: string) :Promise<LoginResponse | APiresponse> => {
     const ParsedPayload =loginSchemaZod.safeParse(payload)
     if (!ParsedPayload.success) {
         const firstError = ParsedPayload.error.issues[0] || "Invalid login payload"
@@ -21,6 +22,7 @@ export const loginaction = async(payload: LoginSchemaPayload) :Promise<LoginResp
        
     }
     try{
+        
         const response =await httpClient.post<LoginResponse>('/auth/login', ParsedPayload.data)
         if (!response.success || !response.data) {
             return {
@@ -30,11 +32,38 @@ export const loginaction = async(payload: LoginSchemaPayload) :Promise<LoginResp
             }
         }
 
-        const {accessToken, refreshToken, token} = response.data
+        const {accessToken, refreshToken, token, user, needPasswordChange} = response.data
+        const { emailVerified } = user
         await setTokencookie("accessToken" ,accessToken)
         await setTokencookie("refreshToken", refreshToken)
         await setTokencookie("better-auth.session_token", token)
-        redirect("/dashboardlayout/commonProtectedLayout")
+        if(!emailVerified){
+            redirect("/verify-email")
+        }
+        else  if(needPasswordChange){
+            //todo refacetoring Password change page and logic after implementing it
+            redirect(`reset-password?email=${user.email}`)
+        }
+        else{
+            // redirect(redirectPath || "/dashboardlayout/commonProtectedLayout") 
+            const roleFromUser = user.role
+            const normalizedRole: UserRole | null =
+                roleFromUser === "SUPER_ADMIN" ||
+                roleFromUser === "ADMIN" ||
+                roleFromUser === "DOCTOR" ||
+                roleFromUser === "PATIENT"
+                    ? roleFromUser
+                    : null
+
+            const targetPath =
+                redirectPath && normalizedRole && isvalidRedirectForROle(redirectPath, normalizedRole)
+                    ? redirectPath
+                    : normalizedRole
+                        ? getdefaultDashboardRoute(normalizedRole)
+                        : "/"
+            redirect(targetPath)
+        }
+        
 
        
     }

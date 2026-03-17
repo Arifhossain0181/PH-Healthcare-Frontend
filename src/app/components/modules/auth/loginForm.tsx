@@ -23,13 +23,18 @@ import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { Alert, AlertDescription } from "../../ui/alert";
 import APPsubmittedButton from "../../shared/form/APPsubmitted-button";
-const LoginForm = () => {
+
+interface LoginFormProps {
+    redirectPath ?: string;
+}
+
+const LoginForm = ({ redirectPath }: LoginFormProps) => {
   const queryClient = useQueryClient();
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
   const { mutateAsync, isPending } = useMutation({
     mutationFn: async (payload: ILoginPayload) => {
-      return await loginaction(payload);
+      return await loginaction(payload ,redirectPath) // Pass redirectPath to loginaction;
     },
   });
   const form = useForm({
@@ -163,10 +168,12 @@ const LoginForm = () => {
           
         </div>
         <Button variant="outline" className="w-full"  onClick={() => {
-            const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+          const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL
+          const googleAuthUrl = new URL(`${baseUrl}/auth/login/google`)
+          googleAuthUrl.searchParams.set("redirect", redirectPath || "/")
 
-            //todo redirect to google auth page
-            window.location.href = `${baseUrl}/auth/login/google`
+          //todo redirect to google auth page
+          window.location.href = googleAuthUrl.toString()
         }}>
           Continue with Google
         </Button>

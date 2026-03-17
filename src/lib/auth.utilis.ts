@@ -3,8 +3,8 @@ export type UserRole = "SUPER_ADMIN" | "ADMIN" | "DOCTOR" | "PATIENT"
 export const authRoutes = [
     "/login","/register","/forgot-password","/reset-password",
     "/verify-email"]
-    export const isAuthROute = (path: string): boolean => {
-        return authRoutes.some((route :string)=>route === path
+    export const isAuthROute = (pathname: string): boolean => {
+        return authRoutes.some((route :string)=>route === pathname
 
         )
     }
@@ -31,38 +31,65 @@ export const authRoutes = [
     export const PatientProtiectedRoutes : RouteConfig={
 
         pattern:[/^\/dashboard/ ],
-        exact:["/payment/success"]
+        exact:["/payment/success"]  
 
     }
 
-    export const isRouteProtected = (path: string, routes: RouteConfig)  => {
-        if(routes.exact.includes(path)){
+    export const isRouteProtected = (pathname: string, routes: RouteConfig)  => {
+        if(routes.exact.includes(pathname   )){
             return true
         }
-        return routes.pattern.some((pattern: RegExp) => pattern.test(path))
+        return routes.pattern.some((pattern: RegExp) => pattern.test(pathname))
 
 
 
     }
 
-    export const getRoutesOwner= (path: string): "SUPER_ADMIN" | "ADMIN" | "DOCTOR" | "PATIENT"  | "COMMON" | null=> {
-        if(isRouteProtected(path,doctorProtectedRoutes,)){
+    export const getRoutesOwner= (pathname: string): "SUPER_ADMIN" | "ADMIN" | "DOCTOR" | "PATIENT"  | "COMMON" | null=> {
+        if(isRouteProtected(pathname,doctorProtectedRoutes)){
             return "DOCTOR"
         }
-        if(isRouteProtected(path,adminProtectedRoutes)){
+        if(isRouteProtected(pathname,adminProtectedRoutes)){
             return "ADMIN"
         }
-        // if(isRouteProtected(path,superAdminProtectedRoutes)){
+        // if(isRouteProtected(pathname,superAdminProtectedRoutes)){
         //     return "SUPER_ADMIN"
         // }
-        if(isRouteProtected(path,PatientProtiectedRoutes)){
+        if(isRouteProtected(pathname,PatientProtiectedRoutes)){
             return "PATIENT"
         }
-        if(isRouteProtected(path,commonPRotectedRoutes)){
+        if(isRouteProtected(pathname,commonPRotectedRoutes)){
             return "COMMON"
         }
         return null
 
 
+
+    }
+    export const getdefaultDashboardRoute = (role: UserRole) => {
+        if(role ==="SUPER_ADMIN" || role === "ADMIN"){
+            return "/admin/dashboard"
+        }
+        if(role === "DOCTOR"){
+            return "/doctor/dashboard"
+        }
+        if(role === "PATIENT"){
+            return "/dashboard"
+        }
+        return "/"
+    }
+
+    export const isvalidRedirectForROle = (redirectPath: string, role: UserRole): boolean => {
+        const unifiSuPerAdminAndAdmin = role === "SUPER_ADMIN" ? "ADMIN" :role 
+         role = unifiSuPerAdminAndAdmin as UserRole
+        const routeOwner = getRoutesOwner(redirectPath)
+        if(routeOwner=== null || routeOwner === "COMMON"){
+            return true
+        }
+        
+        if(routeOwner === role){
+            return true
+        }
+        return false
 
     }
